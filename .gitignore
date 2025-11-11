@@ -13,8 +13,14 @@ data/session_state.json
 !data/schema.sql
 !data/**/.gitkeep
 
+# Logs
+logs/*
+!logs/.gitkeep
+
+# Settings (track template, not user config)
+settings.yaml
+
 # Other data formats
-logs/
 *.csv
 *.tsv
 *.parquet
