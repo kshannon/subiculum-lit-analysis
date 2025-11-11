@@ -1,2 +1,19 @@
 # subiculum-lit-analysis
 Broad literature analysis of the subiculum.
+
+
+
+## Data Access
+
+### NCBI API Usage (PubMed)
+
+This project uses the NCBI Entrez E-Utilities API￼ to programmatically access PubMed metadata related to neuroscience research papers. I strictly adhere to the NCBI API guidelines, data usage policies￼and the Entrez programming utilities usage guidelines to ensure respectful and compliant access to public biomedical research data.
+
+**Compliance Summary**
+  - Rate Limits Respected: No more than 3 requests per second, with large batch queries run during off-peak hours (9 PM–5 AM ET or weekends).
+  - Identification Headers Included: All requests include the tool and email parameters for accountability.
+  - Metadata Only: These API requests retrieves public abstracts and metadata only, no copyrighted content.
+  - Proper Attribution: The NCBI and U.S. National Library of Medicine (NLM) are clearly acknowledged as the data providers.
+  - Non-Commercial Academic Use: All data usage is strictly for academic research and educational purposes.
+
+For more information, please see: [NCBI Data Usage Policies](https://www.ncbi.nlm.nih.gov/home/about/policies/), and [API guidelines](https://www.ncbi.nlm.nih.gov/books/NBK25497/#chapter2.Usage_Guidelines_and_Requiremen)
