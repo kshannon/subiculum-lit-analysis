@@ -1,14 +1,23 @@
-# Data
-data/
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+data/raw/batches/*
+!data/raw/batches/.gitkeep
+data/exports/*
+!data/exports/.gitkeep
+data/session_state.json
+
+# Allow schema file and folder markers
+!data/schema.sql
+!data/**/.gitkeep
+
+# Other data formats
 logs/
 *.csv
 *.tsv
 *.parquet
 *.h5
 *.hdf5
-*.db
-*.sqlite
-*.sqlite3
 
 # Python
 __pycache__/
