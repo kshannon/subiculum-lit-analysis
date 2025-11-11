@@ -5,6 +5,8 @@ data/raw/batches/*
 !data/raw/batches/.gitkeep
 data/exports/*
 !data/exports/.gitkeep
+data/test/*
+!data/test/.gitkeep
 data/session_state.json
 
 # Allow schema file and folder markers
