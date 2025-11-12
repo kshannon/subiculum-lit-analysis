@@ -1,0 +1,35 @@
+# =============================================================================
+# Subiculum Literature Analysis - Configuration
+# =============================================================================
+# Copy to settings.yaml and configure your values
+# DO NOT commit settings.yaml to git (don't worry I also exclude via .gitignore)
+
+# =============================================================================
+# PUBMED API
+# =============================================================================
+pubmed:
+  # (email REQUIRED by NCBI API)
+  email: "your.email@example.com"
+  base_url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+  tool: "subiculum-lit-analysis"
+  rate_limit_without_key: 3
+  rate_limit_with_key: 10
+  # Retry configuration
+  max_retries: 3
+  retry_backoff_base: 2
+  retry_backoff_max: 60
+  request_timeout: 60
+
+  # API key (optional, enables 10 req/s instead of 3 req/s)
+  # Get free key at: https://www.ncbi.nlm.nih.gov/account/settings/
+  # Leave empty to be prompted securely or ignore
+  api_key: ""
+
+
+# =============================================================================
+# NCBI API SEARCH CRITERIA 
+# =============================================================================
+search:
+  query: "subiculum[Title/Abstract]"
+  database: "pubmed"
+  use_history: true
