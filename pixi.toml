@@ -6,14 +6,19 @@ platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
 
 [tasks]
+test-api = { cmd = "bash scripts/test_api.sh", description = "Test PubMed API connectivity (fetches 3 articles)" }
+integration-tests = { cmd = "python tests/test_api_integration.py && python tests/test_xml_parsing.py && python tests/test_db_integration.py", description = "Run all integration tests" }
 
 [dependencies]
 python = "3.11.*"
 numpy = ">=2.3.4,<3"
 pandas = ">=2.3.3,<3"
+scipy = ">=1.11.0,<2"
 matplotlib = ">=3.10.7,<4"
 jupyterlab = ">=4.4.10,<5"
 ipykernel = ">=7.1.0,<8"
+requests = ">=2.31.0,<3"
+lxml = ">=5.0.0,<6"
+pyyaml = ">=6.0,<7"
 pytest = ">=8.4.2,<9"
 tqdm = ">=4.66.0,<5"
-scipy = ">=1.11.0,<2"
