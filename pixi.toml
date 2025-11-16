@@ -6,8 +6,10 @@ platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
 
 [tasks]
+init-db = { cmd = "sqlite3 data/subiculum_literature.db < data/schema.sql", description = "Initialize SQLite database with schema" }
 test-api = { cmd = "bash scripts/test_api.sh", description = "Test PubMed API connectivity (fetches 3 articles)" }
 integration-tests = { cmd = "python tests/test_api_integration.py && python tests/test_xml_parsing.py && python tests/test_db_integration.py", description = "Run all integration tests" }
+run-pipeline = { cmd = "python src/pipeline.py", description = "Run complete ETL pipeline (fetch all papers from PubMed)" }
 
 [dependencies]
 python = "3.11.*"
