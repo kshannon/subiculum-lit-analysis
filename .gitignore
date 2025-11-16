@@ -1,33 +1,47 @@
-data/*.db
-data/*.sqlite
-data/*.sqlite3
+# Raw data (databases)
+data/raw/*.db
+data/raw/*.sqlite
+data/raw/*.sqlite3
 data/raw/batches/*
 !data/raw/batches/.gitkeep
-data/exports/*
-!data/exports/.gitkeep
+
+# Processed data (SQL exports - regeneratable)
+data/processed/*
+!data/processed/.gitkeep
+
+# Interim data (intermediate objects - cache)
+data/interim/*
+!data/interim/.gitkeep
+
+# Exports: TRACKED (publication datasets)
+# data/exports/ is tracked in git
+
+# Test data
 data/test/*
 !data/test/.gitkeep
+
+# Session state
 data/session_state.json
 
-# Allow schema file and folder markers
-!data/schema.sql
-!data/**/.gitkeep
+# Working directories (gitignored - regeneratable)
+notebooks/imgs/*
+!notebooks/imgs/.gitkeep
+notebooks/outputs/*
+!notebooks/outputs/.gitkeep
+notebooks/data/*
+!notebooks/data/.gitkeep
 
-# Logs
-logs/*
-!logs/.gitkeep
+# Shareables: TRACKED (publication-quality outputs)
+# notebooks/shareables/ is tracked in git
 
-# Settings (track template, not user config)
-settings.yaml
+# Reports: TRACKED (archived HTML notebooks)
+# notebooks/reports/ is tracked in git
 
-# Other data formats
-*.csv
-*.tsv
-*.parquet
-*.h5
-*.hdf5
+# Jupyter checkpoints
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
 
-# Python
+# py
 __pycache__/
 *.py[cod]
 *$py.class
@@ -42,11 +56,7 @@ dist/
 htmlcov/
 .mypy_cache/
 
-# Jupyter
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
-
-# Environments
+#.envs
 .env
 .venv
 env/
@@ -57,16 +67,24 @@ ENV/
 .pixi/*
 !.pixi/config.toml
 
-# IDEs
+
+logs/*
+!logs/.gitkeep
+settings.yaml
+
+# ancillary IDE and OS
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 Desktop.ini
-
 $RECYCLE.BIN/
+
+
+# Keep .gitkeep files
+!**/.gitkeep
+# Keep schema file
+!data/raw/schema.sql
