@@ -9,7 +9,6 @@ Broad literature analysis of the subiculum.
 - [Project Data Schema](#project-data-schema)
 - [Search Strategy](#search-strategy)
 
----
 
 ## Data Access
 
@@ -144,11 +143,10 @@ Step 6: Verifying foreign key constraints...
 
 > **Note:** The simple API test (step 4) is a quick connectivity check using bash/curl, while integration tests validate the full Python ETL pipeline components. Run the API test first to ensure network connectivity, then run integration tests to validate the implementation.
 
----
 
 ## Project Data Schema
 
-The init-db task creates the subiculum_literature.db SQLite database and applies the full schema from schema.sql. See Database Schema Design￼for table descriptions, normalization rationale, and query examples in the project Wiki. The schema includes tables for papers, authors, citations, MeSH terms, keywords, grants, and more.
+The pixi `init-db` task creates the `subiculum_literature.db` SQLite database and applies the full schema from schema.sql. See Database Schema Design￼for table descriptions, normalization rationale, and query examples in the project Wiki. The schema includes tables for papers, authors, citations, MeSH terms, keywords, grants, and more. For more information on schema design, please see the github wiki entry.
 
 ## Search Strategy
 
@@ -156,7 +154,102 @@ This project queries PubMed using a hybrid of MeSH terms and title/abstract matc
 
 **Current query:** `subiculum[Title/Abstract]`
 
+**Results:** 3,576 papers in database (99.7% success rate)
+
 **Future expansions:**
-- Broader MeSH-based query: `subiculum[MeSH]`
+- Broader MeSH-based query: `subiculum[MeSH]` (~10K papers)
 - Related structures: entorhinal cortex, CA1, dentate gyrus
 - Incremental updates for newly published papers
+
+
+## Running the Pipeline
+
+### Initial Data Collection
+
+To fetch all papers from PubMed and populate the database:
+
+```bash
+# 1. Initialize the database (creates tables)
+pixi run init-db
+
+# 2. Run the complete ETL pipeline
+pixi run run-pipeline
+
+# Expected output:
+# Starting ETL pipeline
+# Search query: subiculum[Title/Abstract]
+# Total papers found: 3,461
+# Already fetched: 0 papers
+# Papers remaining to fetch: 3,461
+#
+# --- Batch 1/35 (papers 1-100) ---
+# Parsed 100 papers from XML
+# Batch results: 100 inserted, 0 failed, 0 skipped
+# ...
+#
+# === Pipeline Complete ===
+# Total papers inserted: 3,430
+# Total papers failed: 22
+# Total papers in database: 3,430
+```
+
+**Database size:** 41 MB (3,576 papers)
+
+**What happens:**
+1. ESearch: Queries PubMed for all matching PMIDs
+2. Batch fetching: Retrieves papers in batches of 100
+3. XML parsing: Extracts metadata (title, authors, citations, etc.)
+4. Database loading: Inserts into SQLite with transactions
+5. Idempotency: Tracks successfully fetched papers in `fetch_log` table
+
+**On subsequent runs:**
+- Pipeline skips already-fetched papers (uses `fetch_log` table)
+- Only fetches new/failed papers
+- Safe to re-run anytime
+
+### Recovering Failed Papers
+
+Some papers may fail due to duplicate citations in PubMed XML data. To retry:
+
+```bash
+pixi run python scripts/fetch_failed_papers.py
+
+# Output:
+# Found 22 unique failed PMIDs
+# [1/22] Fetching PMID 28673769...
+#   Deduplicated citations: 84 → 83
+#   ✓ Successfully inserted PMID 28673769
+# ...
+# === Retry Complete ===
+# Successfully inserted: 21/22
+# Still failing: 1
+```
+
+This script deduplicates citations before inserting, recovering most failures.
+
+### Fetching Additional Papers
+
+To expand the dataset with different search queries:
+
+1. **Edit `settings.yaml`:**
+```yaml
+search:
+  query: "subiculum[MeSH Terms]"  # Broader query (~10K papers)
+```
+
+2. **Run pipeline again:**
+```bash
+pixi run run-pipeline
+```
+
+Pipeline automatically skips existing papers and only fetches new ones.
+
+**Alternative search strategies:**
+
+| Query | Papers | Description |
+|-------|--------|-------------|
+| `subiculum[Title/Abstract]` | ~3,500 | Current - high precision |
+| `subiculum[MeSH Terms]` | ~10,000 | Professionally indexed papers |
+| `subiculum[Title/Abstract] AND alzheimer*[Title/Abstract]` | ~200 | Disease-specific subset |
+| `subiculum[Title/Abstract] AND epilep*[Title/Abstract]` | ~150 | Epilepsy research |
+| `hippocampus[MeSH] AND CA1[Title/Abstract]` | ~5,000 | Related hippocampal subfield |
