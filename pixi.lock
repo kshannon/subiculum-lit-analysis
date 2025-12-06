@@ -209,6 +209,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/rfc3986-validator-0.1.1-pyh9f0ad1d_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/rfc3987-syntax-1.1.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.28.0-py311h902ca64_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/scienceplots-2.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.7.2-py311hc3e1efb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.16.3-py311h1e13796_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-0.13.2-hd8ed1ab_3.conda
@@ -434,6 +435,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/rfc3986-validator-0.1.1-pyh9f0ad1d_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/rfc3987-syntax-1.1.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/rpds-py-0.28.0-py311h71babbd_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/scienceplots-2.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.7.2-py311h0f965f6_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.16.3-py311h2734c94_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-0.13.2-hd8ed1ab_3.conda
@@ -3883,6 +3885,16 @@ packages:
   license_family: MIT
   size: 353941
   timestamp: 1761178517964
+- conda: https://conda.anaconda.org/conda-forge/noarch/scienceplots-2.2.0-pyhd8ed1ab_0.conda
+  sha256: 3c32c46f40c480456b01eba7f0e08050768a8b4264f42fbf9fa03bc03c26ea9c
+  md5: 5afa92c2fd8bdae640bfb506602e9632
+  depends:
+  - matplotlib-base
+  - python >=3.10
+  license: MIT
+  license_family: MIT
+  size: 24106
+  timestamp: 1763607412003
 - conda: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.7.2-py311hc3e1efb_0.conda
   sha256: c10973e92f71d6a1277a29d3abffefc9ed4b27854b1e3144e505844d7e0a3fe7
   md5: 3f5b4f552d1ef2a5fdc2a4e25db2ee9a
