@@ -56,9 +56,9 @@ def test_database():
     expected_tables = ['papers', 'citations', 'authors', 'paper_authors']
     for table in expected_tables:
         if table in tables:
-            logger.info(f"  ✓ Table '{table}' exists")
+            logger.info(f"  Table '{table}' exists")
         else:
-            logger.error(f"  ✗ Table '{table}' missing!")
+            logger.error(f"  Table '{table}' missing!")
             return False
 
     # Test insert
@@ -72,7 +72,7 @@ def test_database():
     # Verify insert
     cursor.execute("SELECT COUNT(*) FROM papers")
     count = cursor.fetchone()[0]
-    logger.info(f"  ✓ Inserted test paper (count: {count})")
+    logger.info(f"  Inserted test paper (count: {count})")
 
     conn.close()
 
@@ -84,7 +84,7 @@ def test_database():
         logger.error("Test DB was not cleaned up!")
         return False
 
-    logger.info("  ✓ Test DB cleaned up successfully")
+    logger.info("  Test DB cleaned up successfully")
 
     return True
 
@@ -107,7 +107,7 @@ def test_production_db_access():
     conn = get_connection(test_mode=False)
     cursor = conn.execute("SELECT COUNT(*) FROM papers")
     count = cursor.fetchone()[0]
-    logger.info(f"  ✓ Production DB has {count} papers")
+    logger.info(f"  Production DB has {count} papers")
     conn.close()
 
     return True
@@ -136,19 +136,19 @@ def main():
     print("="*60)
 
     for test_name, passed in results:
-        status = "✓ PASS" if passed else "✗ FAIL"
+        status = "OK PASS" if passed else "ERROR FAIL"
         print(f"{test_name:20} {status}")
 
     all_passed = all(result for _, result in results)
 
     if all_passed:
-        print("\n✓ All tests passed!")
+        print("\nOK All tests passed!")
         print("\nNext steps:")
         print("1. Check logs/workflow.log for log entries")
         print("2. Utilities are ready to use in pipeline refactor")
         return 0
     else:
-        print("\n✗ Some tests failed. Check output above.")
+        print("\nERROR Some tests failed. Check output above.")
         return 1
 
 

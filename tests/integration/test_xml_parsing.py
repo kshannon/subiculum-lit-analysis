@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Integration Test #2: Validates parser against real PubMed XML fixture.
+Validates XML parser against real PubMed XML.
 """
 
 import sys
@@ -21,13 +21,13 @@ def test_parse_complete_xml():
     with open(fixture_path, "r") as f:
         xml_data = f.read()
 
-    print(f"  ✓ Loaded {len(xml_data)} bytes of XML")
+    print(f"  Loaded {len(xml_data)} bytes of XML")
 
     # Parse XML
     print("\nStep 2: Parsing XML...")
     papers = parse_xml_batch(xml_data)
 
-    print(f"  ✓ Parsed {len(papers)} papers")
+    print(f"  Parsed {len(papers)} papers")
     assert len(papers) >= 1, "Should parse at least 1 paper"
 
     # Validate first paper structure
@@ -40,8 +40,8 @@ def test_parse_complete_xml():
     assert isinstance(paper["pmid"], int), "PMID must be integer"
     assert isinstance(paper["title"], str), "title must be string"
 
-    print(f"  ✓ PMID: {paper['pmid']}")
-    print(f"  ✓ Title: {paper['title'][:50]}...")
+    print(f"  PMID: {paper['pmid']}")
+    print(f"  Title: {paper['title'][:50]}...")
 
     # Check all expected fields exist (schema-driven)
     expected_fields = [
@@ -55,7 +55,7 @@ def test_parse_complete_xml():
     for field in expected_fields:
         assert field in paper, f"Missing field: {field}"
 
-    print(f"  ✓ All {len(expected_fields)} expected fields present")
+    print(f"  All {len(expected_fields)} expected fields present")
 
     # Validate nested entities
     print("\nStep 4: Validating nested entities...")
@@ -67,17 +67,17 @@ def test_parse_complete_xml():
         # Required: last_name, position (per schema NOT NULL)
         assert "last_name" in author and author["last_name"] is not None
         assert "position" in author and author["position"] is not None
-        print(f"  ✓ Authors: {len(paper['authors'])} found")
+        print(f"  Authors: {len(paper['authors'])} found")
 
     # Citations (list of dicts)
     assert isinstance(paper["citations"], list), "citations must be list"
     if paper["citations"]:
-        print(f"  ✓ Citations: {len(paper['citations'])} found")
+        print(f"  Citations: {len(paper['citations'])} found")
 
     # Validate all papers
     print("\nStep 5: Validating all papers...")
     pmids = [p["pmid"] for p in papers]
-    print(f"  ✓ PMIDs: {', '.join(str(p) for p in pmids[:5])}...")
+    print(f"  PMIDs: {', '.join(str(p) for p in pmids[:5])}...")
 
     assert len(pmids) == len(set(pmids)), "All PMIDs must be unique"
     assert all(isinstance(p, int) for p in pmids), "All PMIDs must be integers"

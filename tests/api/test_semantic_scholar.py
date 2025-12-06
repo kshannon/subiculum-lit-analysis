@@ -67,11 +67,11 @@ def query_semantic_scholar(doi):
         elif response.status_code == 404:
             return None  # Paper not found
         else:
-            print(f"  ⚠️  API error {response.status_code}: {response.text}")
+            print(f"  WARNING  API error {response.status_code}: {response.text}")
             return None
 
     except Exception as e:
-        print(f"  ❌ Request failed: {e}")
+        print(f"  ERROR Request failed: {e}")
         return None
 
 
@@ -81,9 +81,9 @@ def main():
     print("=" * 70)
 
     # Get sample of papers without citations
-    print("\n📊 Fetching papers without citation data from our database...")
+    print("\n Fetching papers without citation data from our database...")
     papers = get_papers_without_citations(limit=50)
-    print(f"✅ Found {len(papers)} papers (2010+) without citations in PubMed")
+    print(f"OK Found {len(papers)} papers (2010+) without citations in PubMed")
 
     # Track statistics
     stats = {
@@ -97,7 +97,7 @@ def main():
 
     sample_results = []
 
-    print("\n🔍 Testing Semantic Scholar API...\n")
+    print("\n Testing Semantic Scholar API...\n")
 
     for pmid, title, year, doi in papers[:50]:  # Test first 50 (within 100/5min limit)
         stats['total_tested'] += 1
@@ -124,7 +124,7 @@ def main():
                 stats['has_citations'] += 1
                 stats['total_cites_available'] += cite_count
 
-            print(f"  ✅ Found in S2!")
+            print(f"  OK Found in S2!")
             print(f"     References: {ref_count}")
             print(f"     Citations: {cite_count}")
 
@@ -136,13 +136,13 @@ def main():
                 'cite_count': cite_count
             })
         else:
-            print(f"  ❌ Not found in Semantic Scholar")
+            print(f"  ERROR Not found in Semantic Scholar")
 
         print()
 
     # Print summary
     print("=" * 70)
-    print("📈 RESULTS SUMMARY")
+    print(" RESULTS SUMMARY")
     print("=" * 70)
     print(f"Papers tested: {stats['total_tested']}")
     print(f"Found in Semantic Scholar: {stats['found_in_s2']} ({100*stats['found_in_s2']/stats['total_tested']:.1f}%)")
@@ -169,21 +169,21 @@ def main():
     estimated_recoverable = int(total_without_citations * coverage_rate)
 
     print("\n" + "=" * 70)
-    print("🎯 EXTRAPOLATED IMPACT")
+    print(" EXTRAPOLATED IMPACT")
     print("=" * 70)
     print(f"Papers in our DB without citations (with DOI): {total_without_citations}")
     print(f"Estimated recoverable from Semantic Scholar: ~{estimated_recoverable} ({100*coverage_rate:.1f}%)")
     print(f"Estimated additional citation links: ~{int(estimated_recoverable * (stats['total_refs_available']/max(stats['has_references'],1)))}")
 
-    print("\n💡 RECOMMENDATION:")
+    print("\n RECOMMENDATION:")
     if coverage_rate > 0.5:
-        print("   ✅ Semantic Scholar has EXCELLENT coverage!")
+        print("   OK Semantic Scholar has EXCELLENT coverage!")
         print("   → Recommend building enrichment pipeline")
     elif coverage_rate > 0.2:
-        print("   ⚠️  Semantic Scholar has MODERATE coverage")
+        print("   WARNING  Semantic Scholar has MODERATE coverage")
         print("   → May be worth enrichment, test other APIs too")
     else:
-        print("   ❌ Semantic Scholar has LOW coverage")
+        print("   ERROR Semantic Scholar has LOW coverage")
         print("   → Test other APIs (CrossRef, OpenCitations)")
 
     # Save sample results
@@ -196,7 +196,7 @@ def main():
             'estimated_recoverable': estimated_recoverable
         }, f, indent=2)
 
-    print(f"\n📄 Detailed results saved to: {output_file}")
+    print(f"\n Detailed results saved to: {output_file}")
     print("=" * 70)
 
 

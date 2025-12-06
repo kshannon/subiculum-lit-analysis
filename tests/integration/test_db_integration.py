@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Integration Test #3: Database Integration
-
+Database Integration
+~BLANK~
 Tests complete ETL cycle: Parse XML -> Insert into DB -> Verify data.
 Uses test database that is deleted after test completes.
 """
@@ -31,7 +31,7 @@ def test_database_integration():
     conn = sqlite3.connect(str(test_db_path))
     conn.executescript(schema_sql)
     conn.close()
-    print("  ✓ Test database created with schema")
+    print("  Test database created with schema")
     print("\nStep 2: Loading and parsing XML fixture...")
     fixture_path = Path(__file__).parent.parent / "data" / "test" / "pubmed_api_test.xml"
 
@@ -39,7 +39,7 @@ def test_database_integration():
         xml_data = f.read()
 
     papers = parse_xml_batch(xml_data)
-    print(f"  ✓ Parsed {len(papers)} papers from fixture")
+    print(f"  Parsed {len(papers)} papers from fixture")
     print("\nStep 3: Inserting papers into database...")
 
     with DatabaseWriter(str(test_db_path)) as writer:
@@ -48,7 +48,7 @@ def test_database_integration():
             if writer.insert_paper(paper):
                 success_count += 1
 
-    print(f"  ✓ Inserted {success_count}/{len(papers)} papers successfully")
+    print(f"  Inserted {success_count}/{len(papers)} papers successfully")
     assert success_count == len(papers), f"Expected {len(papers)} successful inserts, got {success_count}"
 
     print("\nStep 4: Verifying data in database...")
@@ -57,26 +57,26 @@ def test_database_integration():
 
     cursor.execute("SELECT COUNT(*) FROM papers")
     paper_count = cursor.fetchone()[0]
-    print(f"  ✓ Papers in DB: {paper_count}")
+    print(f"  Papers in DB: {paper_count}")
     assert paper_count == len(papers), f"Expected {len(papers)} papers, found {paper_count}"
 
     cursor.execute("SELECT COUNT(*) FROM authors")
     author_count = cursor.fetchone()[0]
-    print(f"  ✓ Authors in DB: {author_count}")
+    print(f"  Authors in DB: {author_count}")
     assert author_count > 0, "Should have at least 1 author"
 
     cursor.execute("SELECT COUNT(*) FROM paper_authors")
     paper_author_count = cursor.fetchone()[0]
-    print(f"  ✓ Paper-author links: {paper_author_count}")
+    print(f"  Paper-author links: {paper_author_count}")
     assert paper_author_count > 0, "Should have at least 1 paper-author link"
 
     cursor.execute("SELECT COUNT(*) FROM citations")
     citation_count = cursor.fetchone()[0]
-    print(f"  ✓ Citations in DB: {citation_count}")
+    print(f"  Citations in DB: {citation_count}")
 
     cursor.execute("SELECT COUNT(*) FROM fetch_log WHERE fetch_success = 1")
     fetch_log_count = cursor.fetchone()[0]
-    print(f"  ✓ Successful fetch_log entries: {fetch_log_count}")
+    print(f"  Successful fetch_log entries: {fetch_log_count}")
     assert fetch_log_count == len(papers), f"Expected {len(papers)} fetch_log entries, found {fetch_log_count}"
 
     print("\nStep 5: Verifying foreign key constraints...")
@@ -88,7 +88,7 @@ def test_database_integration():
     """)
     orphaned = cursor.fetchone()[0]
     assert orphaned == 0, "Found orphaned paper_authors"
-    print("  ✓ No orphaned paper-author links")
+    print("  No orphaned paper-author links")
 
     cursor.execute("""
         SELECT COUNT(*) FROM paper_authors pa
@@ -97,7 +97,7 @@ def test_database_integration():
     """)
     orphaned = cursor.fetchone()[0]
     assert orphaned == 0, "Found orphaned author references"
-    print("  ✓ No orphaned author references")
+    print("  No orphaned author references")
     print("\nStep 6: Testing PRIMARY KEY constraint...")
     cursor.execute("SELECT pmid, author_id FROM paper_authors LIMIT 1")
     test_row = cursor.fetchone()
@@ -112,7 +112,7 @@ def test_database_integration():
             conn.commit()
             assert False, "Should have failed PK constraint"
         except sqlite3.IntegrityError as e:
-            print(f"  ✓ PRIMARY KEY enforced: {e}")
+            print(f"  PRIMARY KEY enforced: {e}")
             conn.rollback()
 
     print("\nStep 7: Testing UNIQUE constraint...")
@@ -129,14 +129,14 @@ def test_database_integration():
             conn.commit()
             assert False, "Should have failed UNIQUE constraint"
         except sqlite3.IntegrityError as e:
-            print(f"  ✓ UNIQUE constraint enforced: {e}")
+            print(f"  UNIQUE constraint enforced: {e}")
             conn.rollback()
 
     conn.close()
  
     print("\nStep 8: Cleanup...")
     test_db_path.unlink()
-    print("  ✓ Test database deleted")
+    print("  Test database deleted")
     print("===============================")
     print("\nDatabase Integration Test PASSED\n")
     print("===============================")

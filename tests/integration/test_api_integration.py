@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Integration Test: PubMed API Connectivity
-
+Integration test for PubMed API Connectivity
+~BLANK~
 Verifies ESearch/EFetch functionality with real API calls.
 """
 
@@ -30,22 +30,22 @@ def test_pubmed_api_search_and_fetch():
     print("Step 1: Running ESearch...")
     result = client.search(config.search_query, use_history=True)
 
-    print(f"  ✓ Found {result.count} total papers")
+    print(f"  Found {result.count} total papers")
     assert result.count > 0
     assert result.webenv is not None
     assert result.query_key is not None
-    print(f"  ✓ WebEnv: {result.webenv[:20]}...")
-    print(f"  ✓ Query key: {result.query_key}")
+    print(f"  WebEnv: {result.webenv[:20]}...")
+    print(f"  Query key: {result.query_key}")
 
     print("\nStep 2: Fetching 3 papers via EFetch...")
     xml = client.fetch_batch(result.webenv, result.query_key, 0, 3)
 
-    print(f"  ✓ Retrieved {len(xml)} bytes of XML")
+    print(f"  Retrieved {len(xml)} bytes of XML")
     assert len(xml) > 1000
 
     print("\nStep 3: Validating XML structure...")
     article_count = xml.count("<PubmedArticle>")
-    print(f"  ✓ Found {article_count} PubmedArticle elements")
+    print(f"  Found {article_count} PubmedArticle elements")
     assert article_count >= 1
     assert "<PMID" in xml
     assert "<ArticleTitle>" in xml

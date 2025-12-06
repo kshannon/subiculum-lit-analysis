@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 """
-Test CrossRef API for citation/reference data enrichment.
+Test CrossRef API coverage for citation enrichment.
 
-Goal: Check if CrossRef has reference lists for papers missing
-      citations in our PubMed dataset (58% of papers).
-
-API Docs: https://api.crossref.org/swagger-ui/index.html
-Rate Limit: Polite pool = 50 req/s with email header (no API key needed)
+Checks if CrossRef has reference lists for papers missing citations.
 """
 
 import sqlite3
@@ -14,19 +10,13 @@ import requests
 import time
 from pathlib import Path
 import json
-
-# Paths
 PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "data" / "raw" / "subiculum_literature.db"
-
-# API configuration
 CROSSREF_API_BASE = "https://api.crossref.org/works"
-RATE_LIMIT_DELAY = 0.5  # seconds (conservative, CrossRef allows 50/s with email)
-MAILTO_EMAIL = "your.email@example.com"  # TODO: Load from settings.yaml
-
-
+RATE_LIMIT_DELAY = 0.5
+MAILTO_EMAIL = "your.email@example.com"  
 def get_papers_without_citations(limit=50):
-    """Get sample of papers without citation data in our DB."""
+    """Get papers without citation data."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
@@ -35,8 +25,8 @@ def get_papers_without_citations(limit=50):
     FROM papers p
     LEFT JOIN citations c ON p.pmid = c.citing_pmid
     WHERE c.citing_pmid IS NULL
-      AND p.doi IS NOT NULL  -- Need DOI for CrossRef lookup
-      AND p.pub_year >= 2010  -- Focus on recent papers
+      AND p.doi IS NOT NULL  
+      AND p.pub_year >= 2010  
     GROUP BY p.pmid
     ORDER BY p.pub_year DESC
     LIMIT ?;
@@ -47,8 +37,6 @@ def get_papers_without_citations(limit=50):
     conn.close()
 
     return results
-
-
 def query_crossref(doi):
     """
     Query CrossRef API for a paper by DOI.
@@ -68,23 +56,21 @@ def query_crossref(doi):
         elif response.status_code == 404:
             return None  # Paper not found
         else:
-            print(f"  ⚠️  API error {response.status_code}: {response.text}")
+            print(f"  WARNING  API error {response.status_code}: {response.text}")
             return None
 
     except Exception as e:
-        print(f"  ❌ Request failed: {e}")
+        print(f"  ERROR Request failed: {e}")
         return None
-
-
 def main():
     print("=" * 70)
-    print("📚 CrossRef API Coverage Test")
+    print(" CrossRef API Coverage Test")
     print("=" * 70)
 
     # Get sample of papers without citations
-    print("\n📊 Fetching papers without citation data from our database...")
+    print("\n Fetching papers without citation data from our database...")
     papers = get_papers_without_citations(limit=50)
-    print(f"✅ Found {len(papers)} papers (2010+) without citations in PubMed")
+    print(f"OK Found {len(papers)} papers (2010+) without citations in PubMed")
 
     # Track statistics
     stats = {
@@ -98,7 +84,7 @@ def main():
 
     sample_results = []
 
-    print("\n🔍 Testing CrossRef API...\n")
+    print("\n Testing CrossRef API...\n")
 
     for pmid, title, year, doi in papers[:100]:  # Test 100 (well under 50 req/s limit)
         stats['total_tested'] += 1
@@ -129,7 +115,7 @@ def main():
                 stats['has_is_referenced_by'] += 1
                 stats['total_cited_by'] += cited_by_count
 
-            print(f"  ✅ Found in CrossRef!")
+            print(f"  OK Found in CrossRef!")
             print(f"     References: {ref_count}")
             print(f"     Cited by (CrossRef count): {cited_by_count}")
 
@@ -147,13 +133,13 @@ def main():
                 'has_ref_dois': sum(1 for r in references if 'DOI' in r)
             })
         else:
-            print(f"  ❌ Not found in CrossRef")
+            print(f"  ERROR Not found in CrossRef")
 
         print()
 
     # Print summary
     print("=" * 70)
-    print("📈 RESULTS SUMMARY")
+    print(" RESULTS SUMMARY")
     print("=" * 70)
     print(f"Papers tested: {stats['total_tested']}")
     print(f"Found in CrossRef: {stats['found_in_crossref']} ({100*stats['found_in_crossref']/stats['total_tested']:.1f}%)")
@@ -170,7 +156,7 @@ def main():
         total_refs = sum(r['ref_count'] for r in sample_results)
         total_ref_dois = sum(r['has_ref_dois'] for r in sample_results)
         if total_refs > 0:
-            print(f"\n📊 Reference quality:")
+            print(f"\n Reference quality:")
             print(f"   References with DOIs: {total_ref_dois}/{total_refs} ({100*total_ref_dois/total_refs:.1f}%)")
 
     # Extrapolate to full dataset
@@ -188,24 +174,24 @@ def main():
     estimated_recoverable = int(total_without_citations * coverage_rate)
 
     print("\n" + "=" * 70)
-    print("🎯 EXTRAPOLATED IMPACT")
+    print(" EXTRAPOLATED IMPACT")
     print("=" * 70)
     print(f"Papers in our DB without citations (with DOI): {total_without_citations}")
     print(f"Estimated recoverable from CrossRef: ~{estimated_recoverable} ({100*coverage_rate:.1f}%)")
     print(f"Estimated additional citation links: ~{int(estimated_recoverable * (stats['total_refs_available']/max(stats['has_references'],1)))}")
 
-    print("\n💡 RECOMMENDATION:")
+    print("\n RECOMMENDATION:")
     if coverage_rate > 0.5:
-        print("   ✅ CrossRef has EXCELLENT coverage!")
+        print("   OK CrossRef has EXCELLENT coverage!")
         print("   → Recommend building enrichment pipeline")
     elif coverage_rate > 0.2:
-        print("   ⚠️  CrossRef has MODERATE coverage")
+        print("   WARNING  CrossRef has MODERATE coverage")
         print("   → May be worth enrichment, compare with other APIs")
     else:
-        print("   ❌ CrossRef has LOW coverage")
+        print("   ERROR CrossRef has LOW coverage")
         print("   → May not be worth the effort")
 
-    print("\n📝 NOTE:")
+    print("\n NOTE:")
     print("   CrossRef references may include:")
     print("   - Structured refs with DOIs (linkable)")
     print("   - Unstructured text refs (harder to link)")
@@ -220,9 +206,7 @@ def main():
             'estimated_recoverable': estimated_recoverable
         }, f, indent=2)
 
-    print(f"\n📄 Detailed results saved to: {output_file}")
+    print(f"\n Detailed results saved to: {output_file}")
     print("=" * 70)
-
-
 if __name__ == "__main__":
     main()

@@ -32,7 +32,7 @@ if [ -z "$PMID_LIST" ]; then
     exit 1
 fi
 
-echo "✓ Retrieved PMIDs: ${PMID_LIST}"
+echo "OK Retrieved PMIDs: ${PMID_LIST}"
 
 sleep 1
 
@@ -53,8 +53,8 @@ ARTICLE_COUNT=$(grep -o "<PubmedArticle>" "$OUTPUT_FILE" | wc -l | tr -d ' ' || 
 
 if [ "$ARTICLE_COUNT" -ge 1 ]; then
     FILE_SIZE=$(wc -c < "$OUTPUT_FILE" | tr -d ' ')
-    echo "✓ Saved ${ARTICLE_COUNT} articles to: ${OUTPUT_FILE}"
-    echo "✓ File size: ${FILE_SIZE} bytes"
+    echo "OK Saved ${ARTICLE_COUNT} articles to: ${OUTPUT_FILE}"
+    echo "OK File size: ${FILE_SIZE} bytes"
     echo ""
     echo "======================================="
     echo "PASSED: PubMed API is working correctly"
