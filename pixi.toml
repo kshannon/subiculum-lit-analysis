@@ -6,10 +6,13 @@ platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
 
 [tasks]
-init-db = { cmd = "sqlite3 data/subiculum_literature.db < data/schema.sql", description = "Initialize SQLite database with schema" }
-test-api = { cmd = "bash scripts/test_api.sh", description = "Test PubMed API connectivity (fetches 3 articles)" }
-integration-tests = { cmd = "python tests/test_api_integration.py && python tests/test_xml_parsing.py && python tests/test_db_integration.py", description = "Run all integration tests" }
-run-pipeline = { cmd = "python src/pipeline.py", description = "Run complete ETL pipeline (fetch all papers from PubMed)" }
+init-db = { cmd = "sqlite3 data/raw/subiculum_literature.db < data/raw/schema.sql", description = "Initialize SQLite database with schema" }
+test-api = { cmd = "bash scripts/test_api.sh", description = "Test PubMed API connectivity" }
+test-utils = { cmd = "python tests/test_utils_validation.py", description = "Test shared utilities (logger, database, credentials)" }
+integration-tests = { cmd = "python tests/test_api_integration.py && python tests/test_xml_parsing.py && python tests/test_db_integration.py", description = "Run integration tests" }
+system-test = { cmd = "python tests/system/test_full_pipeline.py", description = "Run full pipeline system test (requires CROSSREF_EMAIL and SEMANTIC_SCHOLAR_EMAIL env vars)" }
+run-pipeline = { cmd = "python src/pipeline.py", description = "Run ETL pipeline" }
+enrich-citations = { cmd = "python scripts/enrich_citations.py", description = "Enrich citation data from CrossRef and Semantic Scholar" }
 
 [dependencies]
 python = "3.11.*"
