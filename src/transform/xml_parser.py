@@ -1,12 +1,12 @@
 """PubMed XML parser using pure functions (functional programming approach)."""
 
-import logging
 from datetime import datetime
 from typing import Optional, List, Dict
 
 from lxml import etree
+from utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def parse_xml_batch(xml_string: str) -> List[Dict]:

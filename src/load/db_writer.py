@@ -1,12 +1,12 @@
 """Database writer for inserting parsed PubMed data into SQLite."""
 
-import logging
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Set
+from utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class DatabaseWriter:
