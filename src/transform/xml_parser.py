@@ -92,6 +92,11 @@ def parse_paper(article_elem: etree.Element) -> Optional[Dict]:
     authors = parse_authors(article_elem, pmid)
     citations = parse_citations(article_elem)
     open_access = parse_open_access(article_elem, pmc_id)
+    keywords = parse_keywords(article_elem)
+    mesh_terms = parse_mesh_terms(article_elem)
+    publication_types = parse_publication_types(article_elem)
+    grants = parse_grants(article_elem)
+    chemicals = parse_chemicals(article_elem)
 
     return {
         'pmid': pmid,
@@ -112,7 +117,12 @@ def parse_paper(article_elem: etree.Element) -> Optional[Dict]:
         'publication_status': publication_status,
         'authors': authors,
         'citations': citations,
-        'open_access': open_access
+        'open_access': open_access,
+        'keywords': keywords,
+        'mesh_terms': mesh_terms,
+        'publication_types': publication_types,
+        'grants': grants,
+        'chemicals': chemicals
     }
 
 
@@ -258,3 +268,149 @@ def _normalize_month(month_str: str) -> Optional[int]:
     }
 
     return months.get(month_str.lower())
+
+
+def parse_keywords(article_elem: etree.Element) -> List[Dict]:
+    """
+    Parse author keywords from <KeywordList>.
+
+    Returns list of dicts with keyword and major_topic flag.
+    """
+    keyword_list = article_elem.find('.//KeywordList')
+    if keyword_list is None:
+        return []
+
+    keywords = []
+    for keyword_elem in keyword_list.findall('Keyword'):
+        keyword_text = keyword_elem.text
+        if not keyword_text:
+            continue
+
+        is_major = keyword_elem.get('MajorTopicYN', 'N') == 'Y'
+
+        keywords.append({
+            'keyword': keyword_text.strip(),
+            'is_major_topic': is_major
+        })
+
+    return keywords
+
+
+def parse_mesh_terms(article_elem: etree.Element) -> List[Dict]:
+    """
+    Parse MeSH terms from <MeshHeadingList>.
+
+    Returns list of dicts with descriptor info and qualifiers.
+    """
+    mesh_heading_list = article_elem.find('.//MeshHeadingList')
+    if mesh_heading_list is None:
+        return []
+
+    mesh_terms = []
+    for mesh_heading in mesh_heading_list.findall('MeshHeading'):
+        descriptor = mesh_heading.find('DescriptorName')
+        if descriptor is None or not descriptor.text:
+            continue
+
+        descriptor_ui = descriptor.get('UI')
+        descriptor_name = descriptor.text.strip()
+        is_major = descriptor.get('MajorTopicYN', 'N') == 'Y'
+
+        qualifiers = []
+        for qualifier in mesh_heading.findall('QualifierName'):
+            if qualifier.text:
+                qualifiers.append(qualifier.text.strip())
+
+        mesh_terms.append({
+            'descriptor_ui': descriptor_ui,
+            'descriptor_name': descriptor_name,
+            'is_major_topic': is_major,
+            'qualifiers': qualifiers if qualifiers else None
+        })
+
+    return mesh_terms
+
+
+def parse_publication_types(article_elem: etree.Element) -> List[Dict]:
+    """
+    Parse publication types from <PublicationTypeList>.
+
+    Returns list of dicts with type UI and name.
+    """
+    pub_type_list = article_elem.find('.//PublicationTypeList')
+    if pub_type_list is None:
+        return []
+
+    pub_types = []
+    for pub_type in pub_type_list.findall('PublicationType'):
+        if not pub_type.text:
+            continue
+
+        pub_type_ui = pub_type.get('UI')
+        pub_type_name = pub_type.text.strip()
+
+        pub_types.append({
+            'pub_type_ui': pub_type_ui,
+            'pub_type_name': pub_type_name
+        })
+
+    return pub_types
+
+
+def parse_grants(article_elem: etree.Element) -> List[Dict]:
+    """
+    Parse grant information from <GrantList>.
+
+    Returns list of dicts with grant number, agency, acronym, country.
+    """
+    grant_list = article_elem.find('.//GrantList')
+    if grant_list is None:
+        return []
+
+    grants = []
+    for grant in grant_list.findall('Grant'):
+        grant_id = _get_text(grant, 'GrantID')
+        agency = _get_text(grant, 'Agency')
+        acronym = _get_text(grant, 'Acronym')
+        country = _get_text(grant, 'Country')
+
+        if not grant_id and not agency:
+            continue
+
+        grants.append({
+            'grant_number': grant_id or 'N/A',
+            'agency': agency or 'Unknown',
+            'acronym': acronym,
+            'country': country
+        })
+
+    return grants
+
+
+def parse_chemicals(article_elem: etree.Element) -> List[Dict]:
+    """
+    Parse chemical/substance list from <ChemicalList>.
+
+    Returns list of dicts with substance UI, name, and registry number.
+    """
+    chemical_list = article_elem.find('.//ChemicalList')
+    if chemical_list is None:
+        return []
+
+    chemicals = []
+    for chemical in chemical_list.findall('Chemical'):
+        name_elem = chemical.find('NameOfSubstance')
+        if name_elem is None or not name_elem.text:
+            continue
+
+        substance_ui = name_elem.get('UI')
+        substance_name = name_elem.text.strip()
+        registry_number = _get_text(chemical, 'RegistryNumber')
+
+        chemicals.append({
+            'substance_ui': substance_ui,
+            'substance_name': substance_name,
+            'registry_number': registry_number
+        })
+
+    return chemicals

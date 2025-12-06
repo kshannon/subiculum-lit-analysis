@@ -52,6 +52,11 @@ class DatabaseWriter:
             self._insert_authors(cursor, pmid, paper.get('authors', []))
             self._insert_citations(cursor, pmid, paper.get('citations', []))
             self._insert_open_access(cursor, pmid, paper.get('open_access', {}))
+            self._insert_keywords(cursor, pmid, paper.get('keywords', []))
+            self._insert_mesh_terms(cursor, pmid, paper.get('mesh_terms', []))
+            self._insert_publication_types(cursor, pmid, paper.get('publication_types', []))
+            self._insert_grants(cursor, pmid, paper.get('grants', []))
+            self._insert_chemicals(cursor, pmid, paper.get('chemicals', []))
             self._update_fetch_log(cursor, pmid, success=True)
             self._insert_search_source(cursor, pmid)
 
@@ -176,6 +181,121 @@ class DatabaseWriter:
     def _log_failure(self, pmid: int, error_message: str) -> None:
         with open(self.failure_log_path, 'a') as f:
             f.write(f"{datetime.now().isoformat()}\t{pmid}\t{error_message}\n")
+
+    def _insert_keywords(self, cursor: sqlite3.Cursor, pmid: int, keywords: list) -> None:
+        for keyword_data in keywords:
+            keyword_id = self._get_or_create_keyword(cursor, keyword_data['keyword'])
+            cursor.execute("""
+                INSERT OR IGNORE INTO paper_keywords (pmid, keyword_id, is_major_topic)
+                VALUES (?, ?, ?)
+            """, (pmid, keyword_id, keyword_data.get('is_major_topic', False)))
+
+    def _get_or_create_keyword(self, cursor: sqlite3.Cursor, keyword: str) -> int:
+        cursor.execute("SELECT keyword_id FROM keywords WHERE keyword = ?", (keyword,))
+        row = cursor.fetchone()
+        if row:
+            return row[0]
+        cursor.execute("INSERT INTO keywords (keyword) VALUES (?)", (keyword,))
+        return cursor.lastrowid
+
+    def _insert_mesh_terms(self, cursor: sqlite3.Cursor, pmid: int, mesh_terms: list) -> None:
+        for mesh_data in mesh_terms:
+            mesh_id = self._get_or_create_mesh_term(
+                cursor,
+                mesh_data.get('descriptor_ui'),
+                mesh_data['descriptor_name']
+            )
+            qualifiers_str = ', '.join(mesh_data.get('qualifiers', []) or [])
+            cursor.execute("""
+                INSERT OR IGNORE INTO paper_mesh_terms (pmid, mesh_id, is_major_topic, qualifier_names)
+                VALUES (?, ?, ?, ?)
+            """, (pmid, mesh_id, mesh_data.get('is_major_topic', False), qualifiers_str if qualifiers_str else None))
+
+    def _get_or_create_mesh_term(self, cursor: sqlite3.Cursor, descriptor_ui: Optional[str], descriptor_name: str) -> int:
+        if descriptor_ui:
+            cursor.execute("SELECT mesh_id FROM mesh_terms WHERE descriptor_ui = ?", (descriptor_ui,))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+        cursor.execute("""
+            INSERT INTO mesh_terms (descriptor_ui, descriptor_name) VALUES (?, ?)
+        """, (descriptor_ui, descriptor_name))
+        return cursor.lastrowid
+
+    def _insert_publication_types(self, cursor: sqlite3.Cursor, pmid: int, pub_types: list) -> None:
+        for pub_type_data in pub_types:
+            pub_type_id = self._get_or_create_publication_type(
+                cursor,
+                pub_type_data.get('pub_type_ui'),
+                pub_type_data['pub_type_name']
+            )
+            cursor.execute("""
+                INSERT OR IGNORE INTO paper_publication_types (pmid, pub_type_id)
+                VALUES (?, ?)
+            """, (pmid, pub_type_id))
+
+    def _get_or_create_publication_type(self, cursor: sqlite3.Cursor, pub_type_ui: Optional[str], pub_type_name: str) -> int:
+        if pub_type_ui:
+            cursor.execute("SELECT pub_type_id FROM publication_types WHERE pub_type_ui = ?", (pub_type_ui,))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+        cursor.execute("""
+            INSERT INTO publication_types (pub_type_ui, pub_type_name) VALUES (?, ?)
+        """, (pub_type_ui, pub_type_name))
+        return cursor.lastrowid
+
+    def _insert_grants(self, cursor: sqlite3.Cursor, pmid: int, grants: list) -> None:
+        for grant_data in grants:
+            grant_id = self._get_or_create_grant(
+                cursor,
+                grant_data['grant_number'],
+                grant_data['agency'],
+                grant_data.get('acronym'),
+                grant_data.get('country')
+            )
+            cursor.execute("""
+                INSERT OR IGNORE INTO paper_grants (pmid, grant_id)
+                VALUES (?, ?)
+            """, (pmid, grant_id))
+
+    def _get_or_create_grant(self, cursor: sqlite3.Cursor, grant_number: str, agency: str, acronym: Optional[str], country: Optional[str]) -> int:
+        cursor.execute("""
+            SELECT grant_id FROM grants WHERE grant_number = ? AND agency = ?
+        """, (grant_number, agency))
+        row = cursor.fetchone()
+        if row:
+            return row[0]
+        cursor.execute("""
+            INSERT INTO grants (grant_number, grant_acronym, agency, country)
+            VALUES (?, ?, ?, ?)
+        """, (grant_number, acronym, agency, country))
+        return cursor.lastrowid
+
+    def _insert_chemicals(self, cursor: sqlite3.Cursor, pmid: int, chemicals: list) -> None:
+        for chemical_data in chemicals:
+            chemical_id = self._get_or_create_chemical(
+                cursor,
+                chemical_data.get('substance_ui'),
+                chemical_data['substance_name'],
+                chemical_data.get('registry_number')
+            )
+            cursor.execute("""
+                INSERT OR IGNORE INTO paper_chemicals (pmid, chemical_id)
+                VALUES (?, ?)
+            """, (pmid, chemical_id))
+
+    def _get_or_create_chemical(self, cursor: sqlite3.Cursor, substance_ui: Optional[str], substance_name: str, registry_number: Optional[str]) -> int:
+        if substance_ui:
+            cursor.execute("SELECT chemical_id FROM chemicals WHERE substance_ui = ?", (substance_ui,))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+        cursor.execute("""
+            INSERT INTO chemicals (substance_ui, substance_name, registry_number)
+            VALUES (?, ?, ?)
+        """, (substance_ui, substance_name, registry_number))
+        return cursor.lastrowid
 
     def get_fetched_pmids(self) -> Set[int]:
         """

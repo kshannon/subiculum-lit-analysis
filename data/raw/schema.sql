@@ -152,6 +152,27 @@ CREATE TABLE IF NOT EXISTS paper_publication_types (
 CREATE INDEX IF NOT EXISTS idx_paper_pub_types_pmid ON paper_publication_types(pmid);
 CREATE INDEX IF NOT EXISTS idx_paper_pub_types_type ON paper_publication_types(pub_type_id);
 
+CREATE TABLE IF NOT EXISTS chemicals (
+    chemical_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    substance_ui TEXT UNIQUE,
+    substance_name TEXT NOT NULL,
+    registry_number TEXT,
+    UNIQUE(substance_ui)
+);
+
+CREATE TABLE IF NOT EXISTS paper_chemicals (
+    pmid INTEGER NOT NULL,
+    chemical_id INTEGER NOT NULL,
+    FOREIGN KEY (pmid) REFERENCES papers(pmid) ON DELETE CASCADE,
+    FOREIGN KEY (chemical_id) REFERENCES chemicals(chemical_id),
+    PRIMARY KEY (pmid, chemical_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_paper_chemicals_pmid ON paper_chemicals(pmid);
+CREATE INDEX IF NOT EXISTS idx_paper_chemicals_chem ON paper_chemicals(chemical_id);
+CREATE INDEX IF NOT EXISTS idx_chemicals_name ON chemicals(substance_name);
+CREATE INDEX IF NOT EXISTS idx_chemicals_ui ON chemicals(substance_ui);
+
 CREATE TABLE IF NOT EXISTS fetch_log (
     pmid INTEGER PRIMARY KEY,
     fetch_attempt_date TEXT NOT NULL,
