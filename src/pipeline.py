@@ -6,26 +6,16 @@ Fetches PubMed data, parses XML, and loads into database.
 Handles batching, rate limiting, idempotency, and error recovery.
 """
 
-import logging
-import sys
 from pathlib import Path
 from typing import Set
 
 from config import ConfigManager
-from extract.api_client import PubMedAPIClient
+from extract.pubmed_client import PubMedAPIClient
 from transform.xml_parser import parse_xml_batch
 from load.db_writer import DatabaseWriter
+from utils.logger import get_logger
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/pipeline.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class Pipeline:

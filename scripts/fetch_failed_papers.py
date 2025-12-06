@@ -12,16 +12,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from config import ConfigManager
-from extract.api_client import PubMedAPIClient
+from extract.pubmed_client import PubMedAPIClient
 from transform.xml_parser import parse_xml_batch
 from load.db_writer import DatabaseWriter
-import logging
+from utils.logger import get_logger
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def deduplicate_citations(citations):
@@ -103,14 +99,14 @@ def main():
                     logger.info(f"  Deduplicated citations: {original_count} → {deduped_count}")
 
             if db_writer.insert_paper(paper):
-                logger.info(f"  ✓ Successfully inserted PMID {pmid}")
+                logger.info(f"  OK Successfully inserted PMID {pmid}")
                 success_count += 1
             else:
-                logger.warning(f"  ✗ Still failing: PMID {pmid}")
+                logger.warning(f"  ERROR Still failing: PMID {pmid}")
                 still_failing.append(pmid)
 
         except Exception as e:
-            logger.error(f"  ✗ Error fetching PMID {pmid}: {e}")
+            logger.error(f"  ERROR Error fetching PMID {pmid}: {e}")
             still_failing.append(pmid)
 
     db_writer.close()

@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from config import ConfigManager
-from extract.api_client import PubMedAPIClient
+from extract.pubmed_client import PubMedAPIClient
 
 
 def test_pubmed_api_search_and_fetch():
