@@ -37,6 +37,12 @@ notebooks/data/*
 # Reports: TRACKED (archived HTML notebooks)
 # notebooks/reports/ is tracked in git
 
+# Analysis outputs (regenerated from notebooks)
+analysis/*/outputs/*.csv
+analysis/*/data/*.csv
+# Keep PNGs for visualization
+!analysis/*/imgs/*.png
+
 # Jupyter checkpoints
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
