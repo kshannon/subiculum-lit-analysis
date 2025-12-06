@@ -1,10 +1,12 @@
 """PubMed API client with ESearch/EFetch and inline rate limiting."""
 
-import logging
 import time
 from dataclasses import dataclass
 from typing import Optional
 import requests
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -44,7 +46,7 @@ class PubMedAPIClient:
         self.max_retries = max_retries
         self.backoff_base = backoff_base
         self.backoff_max = backoff_max
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger
 
         self.session.headers.update({
             "User-Agent": f"{tool}/0.1.0 (Python; mailto:{email})"
