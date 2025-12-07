@@ -23,6 +23,12 @@ data/test/*
 # Session state
 data/session_state.json
 
+# Models and embeddings (large, regeneratable)
+data/models/*
+!data/models/.gitkeep
+data/embeddings/*
+!data/embeddings/.gitkeep
+
 # Working directories (gitignored - regeneratable)
 notebooks/imgs/*
 !notebooks/imgs/.gitkeep
