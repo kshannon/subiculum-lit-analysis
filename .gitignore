@@ -77,6 +77,7 @@ ENV/
 logs/*
 !logs/.gitkeep
 settings.yaml
+tmp_docs/
 
 # ancillary IDE and OS
 .vscode/
