@@ -210,6 +210,19 @@ CREATE TABLE IF NOT EXISTS paper_open_access (
 
 CREATE INDEX IF NOT EXISTS idx_paper_open_access_available ON paper_open_access(is_open_access);
 
+CREATE TABLE IF NOT EXISTS paper_embeddings (
+    pmid INTEGER PRIMARY KEY,
+    embedding BLOB NOT NULL,
+    model_name TEXT NOT NULL,
+    embedding_dim INTEGER NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (pmid) REFERENCES papers(pmid) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_paper_embeddings_model ON paper_embeddings(model_name);
+CREATE INDEX IF NOT EXISTS idx_paper_embeddings_created ON paper_embeddings(created_at);
+
 CREATE VIEW IF NOT EXISTS v_papers_with_authors AS
 SELECT
     p.pmid,
