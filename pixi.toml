@@ -13,10 +13,11 @@ integration-tests = { cmd = "python tests/test_api_integration.py && python test
 system-test = { cmd = "python tests/system/test_full_pipeline.py", description = "Run full pipeline system test (requires CROSSREF_EMAIL and SEMANTIC_SCHOLAR_EMAIL env vars)" }
 run-pipeline = { cmd = "python src/pipeline.py", description = "Run ETL pipeline" }
 enrich-citations = { cmd = "python scripts/enrich_citations.py", description = "Enrich citation data from CrossRef and Semantic Scholar" }
+generate-embeddings = { cmd = "python scripts/generate_embeddings.py", description = "Generate semantic embeddings for paper abstracts using PubMedBERT" }
 
 [dependencies]
 python = "3.11.*"
-numpy = ">=2.3.4,<3"
+numpy = ">=1.26,<2"
 pandas = ">=2.3.3,<3"
 scipy = ">=1.11.0,<2"
 matplotlib = ">=3.10.7,<4"
@@ -36,3 +37,5 @@ wordcloud = ">=1.9.0"
 sqlalchemy = ">=2.0.0"
 python-dotenv = ">=1.0.0"
 scienceplots = ">=2.0.0"
+sentence-transformers = ">=2.2.0"
+faiss-cpu = "*" 
