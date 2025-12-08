@@ -98,6 +98,42 @@ def save_figure(fig, name, notebook_name, dpi=300, **kwargs):
     return filepath
 
 
+def save_figure_both_formats(fig, name, imgs_dir, timestamp=None, dpi=300, **kwargs):
+    """
+    Save figure in both PNG and EPS formats for LaTeX compatibility.
+
+    PNG: High-resolution raster for notebooks and previews
+    EPS: Vector format for publication-quality LaTeX documents
+
+    Args:
+        fig: matplotlib figure object
+        name: filename base without extension (e.g., '01_baseline_2025-12-08_bradford_curve')
+        imgs_dir: Path object to imgs/ directory (e.g., Path('imgs'))
+        timestamp: optional timestamp string (default: None, assumes name includes timestamp)
+        dpi: resolution for PNG output (default: 300)
+        **kwargs: additional arguments passed to fig.savefig()
+
+    Returns:
+        tuple: (png_path, eps_path)
+    """
+    imgs_dir = Path(imgs_dir)
+    imgs_dir.mkdir(exist_ok=True)
+
+    png_path = imgs_dir / f"{name}.png"
+    eps_path = imgs_dir / f"{name}.eps"
+
+    # Save PNG (raster)
+    fig.savefig(png_path, dpi=dpi, bbox_inches='tight', format='png', **kwargs)
+
+    # Save EPS (vector)
+    fig.savefig(eps_path, bbox_inches='tight', format='eps', **kwargs)
+
+    print(f"✅ Saved PNG: {png_path}")
+    print(f"✅ Saved EPS: {eps_path}")
+
+    return png_path, eps_path
+
+
 def save_dataframe(df, name, notebook_name, subdir=None, **kwargs):
     """
     Save DataFrame to the current notebook's outputs/ directory.
