@@ -45,6 +45,8 @@ notebooks/data/*
 
 # Analysis outputs (regenerated from notebooks)
 analysis/*/outputs/*.csv
+analysis/*/outputs/*.html
+analysis/*/outputs/*.json
 analysis/*/data/*.csv
 # Keep PNGs for visualization
 !analysis/*/imgs/*.png
